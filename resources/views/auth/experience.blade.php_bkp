@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <title>Global Html Template</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Ubuntu:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.css" />
+    <link href="css/custom.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+        crossorigin="anonymous"></script>
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+<div class="container mt-4">
+    <h2 class="mb-3">Add Your Experience</h2>
+    
+    <!-- Form Wrapper -->
+    <div id="form-container">
+        <div class="form-group border mb-2 position-relative" id="form-1">
+            <label>Company Name</label>
+            <input type="text" class="form-control company-name" placeholder="Enter company name">
+            
+            <label>Designation</label>
+            <input type="text" class="form-control company-designation" placeholder="Enter designation">
+            
+            <!-- Phone Numbers Section -->
+            <label>Project</label>
+            <div class="phone-container">
+                <div class="input-group mb-2 phone-group">
+                    <input type="text" class="form-control project" placeholder="Enter project">
+                    <button class="btn btn-success add-project" type="button">+</button>
+                </div>
+            </div>
+            
+            <label>Start Date</label>
+            <input type="text" class="form-control start-date" placeholder="Enter your start date">
+
+            <label>End Date</label>
+            <input type="text" class="form-control end-date" placeholder="Enter last date">
+            
+            <label>Roles & Resposiablites</label>
+            <input type="text" class="form-control company-role" placeholder="Enter company role">
+        </div>
+    </div>
+
+    <!-- Add/Delete Buttons -->
+    <button id="add-form" class="btn btn-primary mt-2">Add Experience</button>
+    <button id="delete-form" class="btn btn-danger mt-2">Delete Experience</button>
+    <button id="submit-form" class="btn btn-success mt-2">Submit</button>
+
+    <!-- Display Submitted Data -->
+    <div class="mt-4">
+        <h3>All Experiences:</h3>
+        <div id="submitted-data" class="row"></div>
+    </div>
+</div>
+<script>
+$(document).ready(function () {
+    let formCount = 1;
+
+    // Add Form
+    $("#add-form").click(function () {
+        formCount++;
+        let newForm = $("#form-1").clone().prop("id", "form-" + formCount);
+        newForm.find("input").val(""); // Clear input fields
+        newForm.find(".phone-container").html(`
+            <div class="input-group mb-2 phone-group">
+                <input type="text" class="form-control project" placeholder="Enter project">
+                <button class="btn btn-success add-project" type="button">+</button>
+            </div>
+        `);
+        $("#form-container").append(newForm);
+    });
+
+    // Delete Last Form
+    $("#delete-form").click(function () {
+        if (formCount > 1) {
+            $("#form-container .form-group:last").remove();
+            formCount--;
+        }
+    });
+
+    // Add Phone Number Field
+    $(document).on("click", ".add-project", function () {
+        let phoneGroup = `
+            <div class="input-group mb-2 phone-group">
+                 <input type="text" class="form-control project" placeholder="Enter phone">
+                 <button class="btn btn-danger remove-project" type="button">-</button>
+
+            </div>
+        `;
+        $(this).closest(".phone-container").append(phoneGroup);
+    });
+
+    // Remove Phone Number Field
+    $(document).on("click", ".remove-project", function () {
+        $(this).closest(".phone-group").remove();
+    });
+
+    // Submit Form Data
+    // $("#submit-form").click(function () {
+    //     let allData = [];
+        
+    //     $(".form-group").each(function () {
+    //         let phoneNumbers = [];
+    //         $(this).find(".phone").each(function () {
+    //             let phoneValue = $(this).val();
+    //             if (phoneValue.trim() !== "") {
+    //                 phoneNumbers.push(phoneValue);
+    //             }
+    //         });
+
+    //         let formData = {
+    //             name: $(this).find(".name").val(),
+    //             email: $(this).find(".email").val(),
+    //             phone: phoneNumbers.join(", "), // Store as comma-separated string
+    //             address: $(this).find(".address").val(),
+    //             city: $(this).find(".city").val()
+    //         };
+    //         allData.push(formData);
+    //     });
+
+    //     // Display Data in Cards
+    //     $("#submitted-data").empty();
+    //     allData.forEach((data, index) => {
+    //         let cardId = `card-${index}`;
+    //         $("#submitted-data").append(`
+    //             <div class="col-md-4" id="${cardId}">
+    //                 <div class="card p-3 mb-3">
+    //                     <h5>Entry ${index + 1}</h5>
+    //                     <p><strong>Name:</strong> ${data.name}</p>
+    //                     <p><strong>Email:</strong> ${data.email}</p>
+    //                     <p><strong>Phone:</strong> ${data.phone}</p>
+    //                     <p><strong>Address:</strong> ${data.address}</p>
+    //                     <p><strong>City:</strong> ${data.city}</p>
+    //                     <button class="btn btn-danger btn-sm remove-card" data-id="${cardId}">Remove</button>
+    //                 </div>
+    //             </div>
+    //         `);
+    //     });
+
+    //     // Reset Form After Submit
+    //     $("#form-container").html(`
+    //         <div class="form-group border p-3 mb-2 position-relative" id="form-1">
+    //             <label>Name</label>
+    //             <input type="text" class="form-control name" placeholder="Enter name">
+                
+    //             <label>Email</label>
+    //             <input type="email" class="form-control email" placeholder="Enter email">
+                
+    //             <!-- Phone Numbers Section -->
+    //             <label>Phone</label>
+    //             <div class="phone-container">
+    //                 <div class="input-group mb-2 phone-group">
+    //                     <input type="text" class="form-control phone" placeholder="Enter phone">
+    //                     <button class="btn btn-success add-phone" type="button">+</button>
+    //                 </div>
+    //             </div>
+                
+    //             <label>Address</label>
+    //             <input type="text" class="form-control address" placeholder="Enter address">
+                
+    //             <label>City</label>
+    //             <input type="text" class="form-control city" placeholder="Enter city">
+    //         </div>
+    //     `);
+
+    //     formCount = 1; // Reset form count
+    // }); 
+
+    $("#submit-form").click(function () {
+    let allData = [];
+    
+    $(".form-group").each(function () {
+        let phoneNumbers = [];
+        $(this).find(".project").each(function () {
+            let phoneValue = $(this).val();
+            if (phoneValue.trim() !== "") {
+                phoneNumbers.push(phoneValue);
+            }
+        });
+
+        let formData = {
+            name: $(this).find(".company-name").val(),
+            designation: $(this).find(".company-designation").val(),
+            phone: phoneNumbers.join(", "), // Store as comma-separated string
+            startdate: $(this).find(".start-date").val(),
+            enddate: $(this).find(".end-date").val(),
+            companyrole: $(this).find(".company-role").val()
+        };
+        allData.push(formData);
+    });
+
+    // Append new data instead of replacing existing data
+    allData.forEach((data, index) => {
+        let cardId = `card-${Date.now()}-${index}`; // Unique ID for each card
+        $("#submitted-data").append(`
+            <div class="col-md-4" id="${cardId}">
+                <div class="ds-card-wrapper p-3 mb-3">
+                    <h5>Experience</h5>
+                    <p><strong>Company Name:</strong> ${data.name}</p>
+                    <p><strong>Designation:</strong> ${data.designation}</p>
+                    <p><strong>Phone:</strong> ${data.phone}</p>
+                    <p><strong>Start Date:</strong> ${data.startdate}</p>
+                    <p><strong>End Date:</strong> ${data.enddate}</p>
+                    <p><strong>Role:</strong> ${data.companyrole}</p>
+                    <div class="re-btn-wrapper">
+                    <button class="btn btn-danger btn-sm remove-card" data-id="${cardId}">Remove</button>
+                    </div>
+                </div>
+            </div>
+        `);
+    });
+
+    // Reset Form After Submit
+    $("#form-container").html(`
+        <div class="form-group border  mb-2 position-relative" id="form-1">
+            <label>Company Name</label>
+            <input type="text" class="form-control company-name" placeholder="Enter company name">
+            
+            <label>Designation</label>
+            <input type="text" class="form-control company-designation" placeholder="Enter designation">
+            
+            <!-- Phone Numbers Section -->
+            <label>Project</label>
+            <div class="phone-container">
+                <div class="input-group mb-2 phone-group">
+                    <input type="text" class="form-control project" placeholder="Enter project">
+                    <button class="btn btn-success add-project" type="button">+</button>
+                </div>
+            </div>
+            
+            <label>Start Date</label>
+            <input type="text" class="form-control start-date" placeholder="Enter your start date">
+            <label>End Date</label>
+            <input type="text" class="form-control end-date" placeholder="Enter last date">
+            <label>Roles & Resposiablites</label>
+            <input type="text" class="form-control company-role" placeholder="Enter company role">
+        </div>
+    `);
+
+    formCount = 1; // Reset form count
+});
+
+    // Remove Card
+    $(document).on("click", ".remove-card", function () {
+        let cardId = $(this).data("id");
+        $("#" + cardId).remove();
+    });
+
+});
+</script>
+</body>
+</html>

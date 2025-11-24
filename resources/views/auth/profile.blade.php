@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="csrf-token" content="{{ csrf_token() }}">
+  <title>Dashboard</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+  <link href="https://fonts.googleapis.com/css2?family=Ubuntu:wght@400;500;700&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+    integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+    crossorigin="anonymous"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.2/font/bootstrap-icons.css">
+  <link rel="stylesheet" href="css/bootstrap.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
+  <link rel="stylesheet" href="{{ asset('css/style.css') }}">
+  <link rel="stylesheet" href="css/dataTables.bootstrap5.min.css">
+</head>
+<body>
+  <script src="{{ asset('js/custom.js') }}"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+  <nav class="navbar navbar-expand-lg navbar-light shadow-sm bg-light">
+    <div class="container-fluid">
+      <button class="navbar-toggler" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasExample"
+        aria-controls="offcanvasExample">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <a class="navbar-brand fw-bold" href="index.html">EImager</a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
+        aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav ms-auto me-md-4 mb-2 mb-lg-0">
+          <li class="nav-item dropdown d-flex text-light">
+            <!-- <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+              <i class="fa-regular fa-user"></i> Admin
+            </a>
+            <ul class="dropdown-menu border-0 bg-light ms-auto">
+              <li><a class="dropdown-item" href="#">Edit Profile</a></li>
+              <li><a class="dropdown-item" href="#">Logout</a></li>
+            </ul> -->
+            <button id="logout-btn" class="btn btn-danger">Logout</button>
+        </ul>
+        </li>
+      </div>
+    </div>
+  </nav>
+  <!-- navbar end -->
+  <!-- sidebar -->
+  <div class="offcanvas offcanvas-start bg-purple text-white sidebar-nav" tabindex="-1" id="offcanvasExample"
+    aria-labelledby="offcanvasExampleLabel">
+    <div class="offcanvas-header shadow-sm d-block text-center">
+      <div class="offcanvas-title" id="offcanvasExampleLabel">
+        <!-- <a class="navbar-brand fw-bold" href="index.html">EImager</a> -->
+        <a class="navbar-brand fw-bold" href="{{ route('dashboard')  }}">
+          <img src="{{url('/images/logo.jpg')}}" alt="BootstrapBrain Logo" width="200">
+        </a>
+      </div>
+    </div>
+    <div class="offcanvas-body pt-3 p-0">
+      <nav class="navbar-dark">
+        <ul class="navbar-nav sidenav">
+          <li class="nav-link bordered px-3 active">
+            <a href="{{ route('dashboard')  }}" class="nav-link px-3 active">
+             
+              @if(session()->has('user'))
+              <p><strong>Name:</strong> {{ session('user')->first_name }}</p>
+              <p><strong>EImager ID:</strong>
+                <p id='#eimagerid'>{{ session('user')->unique_id }}</p>
+              </p>
+              @else
+              <p>User not logged in.</p>
+              @endif
+            </a>
+
+          </li>
+        
+          <li class="nav-link bordered px-3">
+            <a href="{{ route('experience-page')  }}" class="nav-link px-3">
+              <span class="me-2"><i class="bi bi-award"></i></span>
+              <span>Add Experience</span>
+            </a>
+          </li>
+          <li class="nav-link bordered px-3">
+            <a href="#" class="nav-link px-3">
+              <span class="me-2"><i class="bi bi-intersect"></i></span>
+              <span>Approvals</span>
+            </a>
+          </li>
+       
+          <li class="nav-link bordered px-3">
+            <a href="{{ route('userprofile')  }}" class="nav-link px-3">
+              <span class="me-2"><i class="bi bi-person"></i></span>
+              <span>User Profile</span>
+            </a>
+          </li>
+        </ul>
+      </nav>
+    </div>
+  </div>
+  <!-- sidebar end -->
+  <!-- main content -->
+  <main class="mt-3 p-2">
+    <div class="container">
+      <div class="page-title">
+        <div style="font-weight: 500;" class="fs-3">Profile</div>
+      </div>
+      <nav class="mt-2 mb-4" style="--bs-breadcrumb-divider: '>';" aria-label="breadcrumb">
+        <ol class="breadcrumb">
+          <li class="breadcrumb-item"><a href="#">Home</a></li>
+          <li class="breadcrumb-item active" aria-current="page">Profile</li>
+        </ol>
+      </nav>
+      <div class="dashboard">
+        <div class="row">
+          <div class="col-md-4">
+            <div class="card px-4 border-0 shadow-sm">
+              <div class="card-body">
+                <div class="fs-5 text-end">
+                  @if(session()->has('experience_count'))
+                  <p>{{ session('experience_count')}}</p>
+                  @else
+                  <p>0</p>
+                  @endif
+                </div>
+                <div style="margin-top: -10px;" class="fs-3 text-start text-info">
+                  <i class="bi bi-people-fill"></i>
+                </div>
+                <div style="margin-top: -40px;" class="fs-5 pt-4 text-end">
+                  Total Experiences
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="card px-4 border-0 shadow-sm">
+              <div class="card-body">
+                <div class="fs-5 text-end">
+                  @if(session()->has('request_count'))
+                  <p>{{ session('request_count')}}</p>
+                  @else
+                  <p>0</p>
+                  @endif
+                </div>
+                <div style="margin-top: -10px;" class="fs-3 text-start text-warning">
+                  <i class="bi bi-intersect"></i>
+                </div>
+                <div style="margin-top: -40px;" class="fs-5 pt-4 text-end">
+                  Approval Request
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="card px-4 border-0 shadow-sm">
+              <div class="card-body">
+                <div class="fs-5 text-end">
+                  @if(session()->has('pending_count'))
+                  <p>{{ session('pending_count')}}</p>
+                  @else
+                  <p>0</p>
+                  @endif
+                </div>
+                <div style="margin-top: -10px;" class="fs-3 text-start text-danger">
+                  <i class="bi bi-journal-text"></i>
+                </div>
+                <div style="margin-top: -40px;" class="fs-5 pt-4 text-end">
+                  Pending Approvals
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- add profile data -->
+      <div class="profile-card card">
+        <div class="card-header bg-primary text-white">
+          <h4>User Profile</h4>
+        </div>
+        <div class="card-body">
+          <table class="table">
+            <tr>
+              <th>Name:</th>
+              <td>{{ $user->first_name }}</td>
+            </tr>
+            <tr>
+              <th>Email:</th>
+              <td>{{ $user->email  }}<span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(your mail is secure)</span></td>
+            </tr>
+            <tr>
+              <th>Phone:</th>
+              <td>{{ $user->phone_number }} <span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(your number is secure)</span></td>
+            </tr>
+            <tr>
+              <th>Aadhaar:</th>
+              <td>{{ $user->aadhar_number }} <span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(last 4 digit)</span></td>
+            </tr>
+            <tr>
+              <th>PAN:</th>
+              <td>{{ $user->pan_number }} <span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(first 5 digit)</span></td>
+            </tr>
+            <tr>
+              <th>DOB:</th>
+              <td>{{ $user->dob }}</td>
+            </tr>
+            <tr>
+              <th>Created At:</th>
+              <td>{{ $user->created_at }}</td>
+            </tr>
+
+          </table>
+
+        </div>
+      </div>
+      <!-- add profile data -->
+    </div>
+  </main>
+  <!-- main content end-->
+
+  <script src="js/jquery-3.5.1.js"></script>
+  <script src="js/jquery.dataTables.min.js"></script>
+  <script src="js/dataTables.bootstrap5.min.js"></script>
+  <script src="js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
