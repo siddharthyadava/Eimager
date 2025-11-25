@@ -118,56 +118,132 @@ class AuthController extends Controller
             return response()->json(['success' => false, 'message' => 'No changes detected!']);
         }
     }
+    // public function store(Request $request)
+    // {
+    //     $validatedData = $request->validate([
+    //         'first_name' => 'required|string|max:255|regex:/^[a-zA-Z\s]+$/',
+    //         'email' => 'required|email|unique:register_data,email',
+    //         'phone_number' => 'required|string|digits:10|regex:/^[6-9][0-9]{9}$/',
+    //         'password' => 'required|string|min:8|max:20',
+    //         'password_confirmation' => 'required|string|same:password',
+    //         // 'first_name' => 'required|string|max:255',
+    //         // 'email' => 'required|email|unique:register_data,email',
+    //         // 'phone_number' => 'required|string|max:20',
+    //         // 'password' => 'required|string|min:6',
+    //         // 'aadhar_number' => 'required|string|max:12',
+    //         // 'pan_number' => 'required|string|max:10',
+    //         // 'dob' => 'required|string|max:10',
+    //         // 'unique_id' => 'required|string|unique:register_data,unique_id',
+    //     ]);
+
+    //     // Store data in the database
+    //     $registerData = RegisterData::create([
+    //         'first_name' => $validatedData['first_name'],
+    //         // 'last_name' => $validatedData['last_name'],
+    //         'email' => $validatedData['email'],
+    //         'phone_number' => $validatedData['phone_number'],
+    //         'password' => Hash::make($validatedData['password']), // Hashing password
+    //         // 'aadhar_number' => $validatedData['aadhar_number'],
+    //         // 'pan_number' => $validatedData['pan_number'],
+    //         // 'dob' => $validatedData['dob'],
+    //         // 'unique_id' => $validatedData['unique_id'],
+    //     ]);
+
+    //     try {
+    //         // $to = $validatedData['email'];
+    //         // $unique_id = $validatedData['unique_id'];
+    //         // $subject = "Employer Registration";
+
+
+    //         //  Mail::to($to)->send(new UserRegistration($subject, $unique_id));
+    //     } catch (Exception $e) {
+    //         Log::error('Error--->', $e);
+    //     }
+    //     $user = $registerData;
+    //     session(['user' => $user]);
+    //     return response()->json([
+    //         'success' => true,
+    //         'message' => 'Registration First Step Successful!',
+    //         'data' => $registerData,
+    //         'redirect' => url('userprofile')
+    //     ]);
+    // }
+
     public function store(Request $request)
-    {
-        $validatedData = $request->validate([
-            'first_name' => 'required|string|max:255|regex:/^[a-zA-Z\s]+$/',
-            'email' => 'required|email|unique:register_data,email',
-            'phone_number' => 'required|string|digits:10|regex:/^[6-9][0-9]{9}$/',
-            'password' => 'required|string|min:8|max:20',
-            'password_confirmation' => 'required|string|same:password',
-            // 'first_name' => 'required|string|max:255',
-            // 'email' => 'required|email|unique:register_data,email',
-            // 'phone_number' => 'required|string|max:20',
-            // 'password' => 'required|string|min:6',
-            // 'aadhar_number' => 'required|string|max:12',
-            // 'pan_number' => 'required|string|max:10',
-            // 'dob' => 'required|string|max:10',
-            // 'unique_id' => 'required|string|unique:register_data,unique_id',
-        ]);
+{
+    // 🔴 1) Clean up any INCOMPLETE registration with same email or phone
+    $email = $request->input('email');
+    $phone = $request->input('phone_number');
 
-        // Store data in the database
-        $registerData = RegisterData::create([
-            'first_name' => $validatedData['first_name'],
-            // 'last_name' => $validatedData['last_name'],
-            'email' => $validatedData['email'],
-            'phone_number' => $validatedData['phone_number'],
-            'password' => Hash::make($validatedData['password']), // Hashing password
-            // 'aadhar_number' => $validatedData['aadhar_number'],
-            // 'pan_number' => $validatedData['pan_number'],
-            // 'dob' => $validatedData['dob'],
-            // 'unique_id' => $validatedData['unique_id'],
-        ]);
-
-        try {
-            // $to = $validatedData['email'];
-            // $unique_id = $validatedData['unique_id'];
-            // $subject = "Employer Registration";
-
-
-            //  Mail::to($to)->send(new UserRegistration($subject, $unique_id));
-        } catch (Exception $e) {
-            Log::error('Error--->', $e);
-        }
-        $user = $registerData;
-        session(['user' => $user]);
-        return response()->json([
-            'success' => true,
-            'message' => 'Registration First Step Successful!',
-            'data' => $registerData,
-            'redirect' => url('userprofile')
-        ]);
+    if ($email || $phone) {
+        RegisterData::where(function ($q) use ($email, $phone) {
+                // Match by email and/or phone_number
+                if ($email) {
+                    $q->where('email', $email);
+                }
+                if ($phone) {
+                    // if both email & phone provided → match either
+                    if ($email) {
+                        $q->orWhere('phone_number', $phone);
+                    } else {
+                        $q->where('phone_number', $phone);
+                    }
+                }
+            })
+            // Only delete INCOMPLETE records (no unique_id created yet)
+            ->where(function ($q) {
+                $q->whereNull('unique_id')
+                  ->orWhere('unique_id', '');
+            })
+            ->delete();
     }
+    // 🔴 1) END
+
+    // 🔵 2) Your existing validation (UNCHANGED)
+    $validatedData = $request->validate([
+        'first_name' => 'required|string|max:255|regex:/^[a-zA-Z\s]+$/',
+        'email' => 'required|email|unique:register_data,email',
+        'phone_number' => 'required|string|digits:10|regex:/^[6-9][0-9]{9}$/',
+        'password' => 'required|string|min:8|max:20',
+        'password_confirmation' => 'required|string|same:password',
+        // 'first_name' => 'required|string|max:255',
+        // 'email' => 'required|email|unique:register_data,email',
+        // 'phone_number' => 'required|string|max:20',
+        // 'password' => 'required|string|min:6',
+        // 'aadhar_number' => 'required|string|max:12',
+        // 'pan_number' => 'required|string|max:10',
+        // 'dob' => 'required|string|max:10',
+        // 'unique_id' => 'required|string|unique:register_data,unique_id',
+    ]);
+
+    // 🔵 3) Your existing creation logic (UNCHANGED)
+    $registerData = RegisterData::create([
+        'first_name'   => $validatedData['first_name'],
+        'email'        => $validatedData['email'],
+        'phone_number' => $validatedData['phone_number'],
+        'password'     => Hash::make($validatedData['password']),
+    ]);
+
+    try {
+        // $to = $validatedData['email'];
+        // $unique_id = $validatedData['unique_id'];
+        // $subject = "Employer Registration";
+        // Mail::to($to)->send(new UserRegistration($subject, $unique_id));
+    } catch (Exception $e) {
+        Log::error('Error--->', [$e->getMessage()]);
+    }
+
+    $user = $registerData;
+    session(['user' => $user]);
+
+    return response()->json([
+        'success'  => true,
+        'message'  => 'Registration First Step Successful!',
+        'data'     => $registerData,
+        'redirect' => url('userprofile'),
+    ]);
+}
+
 
     public function storeStep2(Request $request)
     {
@@ -252,6 +328,92 @@ class AuthController extends Controller
             'message' => 'User email not found!',
         ], 404);
     }
+
+    public function checkPartialEmployeeRegistration(Request $request)
+{
+    $validatedData = $request->validate([
+        'email'        => 'nullable|email',
+        'phone_number' => 'nullable|string|digits:10',
+    ]);
+
+    if (!$request->filled('email') && !$request->filled('phone_number')) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Please provide email or phone_number.',
+            'data'    => false,
+        ], 422);
+    }
+
+    $query = RegisterData::query();
+
+    // Match by email or phone
+    $query->where(function ($q) use ($request) {
+        if ($request->filled('email')) {
+            $q->orWhere('email', $request->input('email'));
+        }
+        if ($request->filled('phone_number')) {
+            $q->orWhere('phone_number', $request->input('phone_number'));
+        }
+    });
+
+    $employee = $query->first();
+
+    $is_partially_created = false;
+
+    if ($employee) {
+        // "Incomplete" means unique_id not assigned yet
+        if (empty($employee->unique_id)) {
+            $is_partially_created = true;
+        }
+    }
+
+    return response()->json([
+        'success' => true,
+        'message' => 'Employee creation status',
+        'data'    => $is_partially_created,
+    ]);
+}
+
+public function deletePartiallyCreatedEmployeeAccount(Request $request)
+{
+    $validatedData = $request->validate([
+        'email'        => 'nullable|email',
+        'phone_number' => 'nullable|string|digits:10',
+    ]);
+
+    if (!$request->filled('email') && !$request->filled('phone_number')) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Please provide email or phone_number.',
+        ], 422);
+    }
+
+    $query = RegisterData::query();
+
+    $query->where(function ($q) use ($request) {
+        if ($request->filled('email')) {
+            $q->orWhere('email', $request->input('email'));
+        }
+        if ($request->filled('phone_number')) {
+            $q->orWhere('phone_number', $request->input('phone_number'));
+        }
+    });
+
+    // Only delete INCOMPLETE accounts (no unique_id yet)
+    $query->where(function ($q) {
+        $q->whereNull('unique_id')
+          ->orWhere('unique_id', '');
+    });
+
+    $deletedCount = $query->delete();
+
+    return response()->json([
+        'success' => true,
+        'message' => 'Partially created employee account(s) deleted.',
+        'deleted' => $deletedCount,
+    ]);
+}
+
     // public function login(Request $request)
     // {
     //     try {
