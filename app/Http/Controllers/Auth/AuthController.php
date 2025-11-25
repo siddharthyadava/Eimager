@@ -20,6 +20,7 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Mail\Mailable;
+use Illuminate\Support\Facades\Validator;
 use App\Mail\PasswordForgotOtpUser;
 use App\Mail\UserRegistration;
 use App\Mail\SendResetPasswordLinkUser;

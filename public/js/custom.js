@@ -434,14 +434,25 @@ $(document).ready(function () {
                             });
                         }
                     },
-                    complete: function () {
-                        $(".next").hide();
-                        // Re-enable button and reset text after AJAX completes
-                        $this.prop("disabled", false).text("Next");
-                        // showStep(currentStep);
-                        console.log('---', currentStep);
+                    // complete: function () {
+                    //     $(".next").hide();
+                    //     // Re-enable button and reset text after AJAX completes
+                    //     $this.prop("disabled", false).text("Next");
+                    //     // showStep(currentStep);
+                    //     console.log('---', currentStep);
 
-                    }
+                    // }
+                    complete: function () {
+                        // Don’t hide the button here
+                        $this
+                            .prop("disabled", false)
+                            .text(
+                                currentStep === totalSteps
+                                    ? "Submit"
+                                    : "Next Step"
+                            );
+                    },
+                    
                 });
                  
             }
