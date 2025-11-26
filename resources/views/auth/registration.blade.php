@@ -119,25 +119,32 @@
                                             <input placeholder="e.g. 9234567890" type="number"  inputmode="numeric" id="phone_number" name="phone_number">
                                             <p class="error-message" id="error-phone_number"></p>
                                         </div>
-                                        <!-- Added Password Field -->
+                                        <!-- Password -->
                                         <div class="fieldParent">
                                             <div class="labelErrorParent">
                                                 <label for="password">Password</label>
                                             </div>
-                                            <input placeholder="Enter your password" name="password" type="password" id="password">
+                                            <div class="password-wrapper">
+                                                <input placeholder="Enter your password" name="password" type="password" id="password">
+                                                <button type="button" class="toggle-password" data-target="#password">Show</button>
+                                            </div>
                                             <p class="error-message" id="error-password"></p>
                                         </div>
-                                        <!-- Added Confirm Password Field -->
-                                         <!-- <p class="error-message" id="error-password"></p> -->
+
+                                        <!-- Confirm Password -->
                                         <div class="fieldParent">
                                             <div class="labelErrorParent">
                                                 <label for="confirm-password">Confirm Password</label>
                                             </div>
-                                            <input placeholder="Re-enter your password" type="password" name="password_confirmation" id="confirm-password">
+                                            <div class="password-wrapper">
+                                                <input placeholder="Re-enter your password" type="password" name="password_confirmation" id="confirm-password">
+                                                <button type="button" class="toggle-password" data-target="#confirm-password">Show</button>
+                                            </div>
                                             <p class="error-message" id="error-password"></p>
                                             <input type="hidden" id="user_name_hidden" name="first_name" value="test">
                                             <input type="hidden" id="user_email_hidden" name="email" value="test">
                                         </div>
+
                                     </div>
                                 </div>
                             </div>
@@ -271,6 +278,24 @@
     </div>
     
     <script src="js/custom.js"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            document.querySelectorAll('.toggle-password').forEach(function (btn) {
+                var targetSelector = btn.getAttribute('data-target');
+                var input = document.querySelector(targetSelector);
+                if (!input) return;
+
+                btn.addEventListener('click', function () {
+                    var isPassword = input.getAttribute('type') === 'password';
+                    input.setAttribute('type', isPassword ? 'text' : 'password');
+                    btn.textContent = isPassword ? 'Hide' : 'Show';
+                });
+            });
+        });
+    </script>
+
+
     <style>
         .summary-success-holder{
             display:flex;
@@ -332,6 +357,32 @@
         .btnWrapper .next:hover {
           background: #0056b3;
         }
+
+        /* Added for show and hide password */
+        .password-wrapper {
+            position: relative;
+        }
+
+        .password-wrapper input {
+            padding-right: 70px; /* space for the Show/Hide button */
+        }
+
+        .password-wrapper .toggle-password {
+            position: absolute;
+            top: 50%;
+            right: 12px;
+            transform: translateY(-50%);
+            background: transparent;
+            border: none;
+            font-size: 13px;
+            color: #007bff;
+            cursor: pointer;
+            padding: 0;
+        }
+        .password-wrapper .toggle-password:focus {
+            outline: none;
+        }
+
 
     </style>
 </body>
