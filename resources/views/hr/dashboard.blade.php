@@ -74,7 +74,7 @@
             <a href="/hrdashboard" class="nav-link px-3 active">
               @if(session()->has('user'))
               <p><strong>Name:</strong> {{ session('user')->hr_name }}</p>
-              <p><strong>EImager ID:</strong>
+              <p><strong>HR_EImager ID:</strong>
                 <p id='eimagerid'>{{ session('user')->hr_unique_id }}</p>
               </p>
               @else

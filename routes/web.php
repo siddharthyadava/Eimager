@@ -15,6 +15,9 @@ Route::get('/', function () {
 Route::get('/about', function () {
     return view('about.about');
 });
+Route::get('/terms-conditions', function () {
+    return view('privacy.terms-conditions');
+});
 Route::get('/clear-cache', function() {
     \Artisan::call('config:clear');
     \Artisan::call('cache:clear');
